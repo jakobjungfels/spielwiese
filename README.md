@@ -21,8 +21,6 @@ Create GitHub secrets for actions for Azure login
 
 ![image](docs/secrets.png)
 
-## kubernetes cluster
-
 Create terraform state storage
 
 ```shell
@@ -31,6 +29,8 @@ terraform init
 terraform plan
 terraform apply -auto-approve
 ```
+
+## kubernetes cluster
 
 ```shell
 cd spielwiese\kubernetes_cluster\cluster
