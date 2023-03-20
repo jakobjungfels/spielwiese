@@ -39,9 +39,6 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
 
-    - name: Setup Kubectl
-      uses: tale/kubectl-action@v1
-
     - name: Terraform Checks
       working-directory: ./kubernetes_cluster
       run: |
@@ -56,6 +53,10 @@ jobs:
         terraform apply -auto-approve -input=false -var 'aks_service_principal_app_id=${{ secrets.CLIENT_ID }}' -var 'aks_service_principal_client_secret=${{ secrets.CLIENT_SECRET }}' -var 'aks_service_principal_object_id=${{ secrets.CLIENT_OBJECT_ID }}'
         terraform output -raw kube_config > ./azurek8s
         echo ./azurek8s
+
+    - name: Setup Kubectl
+      uses: azure/setup-kubectl@v3
+      id: install
 
     - name: Deploy ArgoCD
       working-directory: ./argocd
