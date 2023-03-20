@@ -39,6 +39,9 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
 
+    - name: Setup Kubectl
+      uses: tale/kubectl-action@v1
+
     - name: Terraform Checks
       working-directory: ./kubernetes_cluster
       run: |
@@ -51,5 +54,14 @@ jobs:
       if: github.event.pull_request.merged
       run: |
         terraform apply -auto-approve -input=false -var 'aks_service_principal_app_id=${{ secrets.CLIENT_ID }}' -var 'aks_service_principal_client_secret=${{ secrets.CLIENT_SECRET }}' -var 'aks_service_principal_object_id=${{ secrets.CLIENT_OBJECT_ID }}'
-        echo "$(terraform output kube_config)" > ./azurek8s
-        echo ./azurek8s
+        terraform output -raw kube_config > ../kubernetes_cluster/azurek8s
+        echo ../kubernetes_cluster/azurek8s
+
+    - name: Deploy ArgoCD
+      working-directory: ./argocd
+      if: github.event.pull_request.merged
+      run: |
+        kubectl --kubeconfig=../kubernetes_cluster/azurek8s create namespace argocd
+        kubectl --kubeconfig=../kubernetes_cluster/azurek8s apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+        kubectl --kubeconfig=../kubernetes_cluster/azurek8s patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
+        kubectl --kubeconfig=../kubernetes_cluster/azurek8s get secret -n argocd argocd-initial-admin-secret -o yaml
