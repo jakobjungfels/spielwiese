@@ -55,7 +55,7 @@ jobs:
       run: |
         terraform apply -auto-approve -input=false -var 'aks_service_principal_app_id=${{ secrets.CLIENT_ID }}' -var 'aks_service_principal_client_secret=${{ secrets.CLIENT_SECRET }}' -var 'aks_service_principal_object_id=${{ secrets.CLIENT_OBJECT_ID }}'
         terraform output -raw kube_config > ./azurek8s
-        echo ../kubernetes_cluster/azurek8s
+        echo ./azurek8s
 
     - name: Deploy ArgoCD
       working-directory: ./argocd
