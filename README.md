@@ -51,3 +51,4 @@ kubectl --kubeconfig=spielwiese\kubernetes_cluster\azurek8s port-forward svc/arg
 kubectl --kubeconfig=spielwiese\kubernetes_cluster\azurek8s patch svc argocd-server -n argocd --patch-file spielwiese\argocd\patch_file.yaml
 kubectl --kubeconfig=spielwiese\kubernetes_cluster\azurek8s get secret -n argocd argocd-initial-admin-secret -o yaml
 ```
+
