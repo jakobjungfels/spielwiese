@@ -10,6 +10,7 @@ on:
   push:
     branches: [ "main" ]
   pull_request:
+    branches: [ "main", "master" ]
 
 permissions:
   contents: read
@@ -45,7 +46,7 @@ jobs:
 
     - name: Terraform Apply
       working-directory: ./kubernetes_cluster
-      if: github.event.pull_request.merged == true
+      if: github.event.pull_request.merged
       run: |
         terraform apply -auto-approve -input=false -var 'aks_service_principal_app_id=${{ secrets.CLIENT_ID }}' -var 'aks_service_principal_client_secret=${{ secrets.CLIENT_SECRET }}' -var 'aks_service_principal_object_id=${{ secrets.CLIENT_OBJECT_ID }}'
         echo "$(terraform output kube_config)" > ./azurek8s
