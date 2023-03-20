@@ -1,5 +1,7 @@
 # spielwiese
 
+The following steps need to be done manually. The rest of the deployment is handled via GitHub actions and ArgoCD
+
 ## GitHub setup
 
 Create service principle
@@ -17,9 +19,11 @@ To login using the service principle
 az login --service-principal -u <app_id> -p <principle_password> --tenant <tenant_id>
 ```
 
-Create GitHub secrets for actions for Azure login
+Create GitHub secrets
 
 ![image](docs/secrets.png)
+
+## Azure setup
 
 Create terraform state storage
 

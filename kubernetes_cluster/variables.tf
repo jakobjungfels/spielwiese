@@ -41,13 +41,13 @@ variable "log_analytics_workspace_sku" {
 }
 
 variable "aks_service_principal_app_id" {
-  default = "1959b78b-9365-4f7d-96e3-24dec566d58e"
+  default = ""
 }
 
 variable "aks_service_principal_client_secret" {
-  default = "IttU_2XZSyIzuaoO-o.mINBfTq0MiMvsFq"
+  default = ""
 }
 
 variable "aks_service_principal_object_id" {
-  default = "a7759714-ed9d-4fed-8536-143508d28ce9"
+  default = ""
 }
