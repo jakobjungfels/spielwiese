@@ -81,16 +81,19 @@ jobs:
       run: |
         cd ../kubernetes_cluster
         terraform init
-        terraform output -raw kube_config > ./config
+        terraform output -raw kube_config > ./config.txt
+        sed -i '1d' ./config.txt
         cd ../argocd
-        cat ../kubernetes_cluster/test
-        cat ../kubernetes_cluster/config
-        diff ../kubernetes_cluster/test ../kubernetes_cluster/config
-        kubectl --kubeconfig=../kubernetes_cluster/test --output=yaml version
-        kubectl --kubeconfig=../kubernetes_cluster/test create namespace argocd
-        kubectl --kubeconfig=../kubernetes_cluster/test apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-        kubectl --kubeconfig=../kubernetes_cluster/test patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
-        kubectl --kubeconfig=../kubernetes_cluster/test get secret -n argocd argocd-initial-admin-secret -o yaml
+        echo test.txt
+        cat ../kubernetes_cluster/test.txt
+        echo config.txt
+        cat ../kubernetes_cluster/config.txt
+        diff ../kubernetes_cluster/test.txt ../kubernetes_cluster/config.txt
+        kubectl --kubeconfig=../kubernetes_cluster/test.txt version
+        kubectl --kubeconfig=../kubernetes_cluster/test.txt create namespace argocd
+        kubectl --kubeconfig=../kubernetes_cluster/test.txt apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+        kubectl --kubeconfig=../kubernetes_cluster/test.txt patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
+        kubectl --kubeconfig=../kubernetes_cluster/test.txt get secret -n argocd argocd-initial-admin-secret -o yaml
 
     # - name: Deploy ArgoCD
     #   working-directory: ./argocd
