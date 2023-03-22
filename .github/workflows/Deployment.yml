@@ -80,8 +80,8 @@ jobs:
       working-directory: ./argocd
       # if: github.event.pull_request.merged
       run: |
-        cat ../kubernetes_cluster/config
-        kubectl --kubeconfig=../kubernetes_cluster/config version
+        cat ../kubernetes_cluster/test
+        kubectl --kubeconfig=../kubernetes_cluster/test version
         kubectl create namespace argocd
         kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
         kubectl patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
