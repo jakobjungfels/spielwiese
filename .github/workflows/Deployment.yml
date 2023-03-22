@@ -22,7 +22,7 @@ permissions:
 jobs:
   deployment:
     name: 'Deployment'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     environment: production
 
     defaults:
