@@ -81,7 +81,7 @@ jobs:
       run: |
         cd ../kubernetes_cluster
         terraform init
-        terraform output -raw kube_config > ./config.txt
+        echo "$(terraform output -raw kube_config)" > ./config.txt
         sed -i '1d' ./config.txt
         cd ../argocd
         echo test.txt
