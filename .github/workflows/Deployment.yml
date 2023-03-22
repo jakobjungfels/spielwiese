@@ -54,7 +54,11 @@ jobs:
       run: |
         terraform init
         terraform apply -auto-approve -input=false -var 'aks_service_principal_app_id=${{ secrets.CLIENT_ID }}' -var 'aks_service_principal_client_secret=${{ secrets.CLIENT_SECRET }}' -var 'aks_service_principal_object_id=${{ secrets.CLIENT_OBJECT_ID }}'
-
+        terraform output kube_config > ./config
+        tail -n +3 ./config > ./config_ && mv ./config_ ./config
+        mkdir -p ~/.kube
+        head -n -12 ./config > ~/.kube/config
+        
     # - name: Terraform Checks ContainerRegistry
     #   working-directory: ./container_registry
     #   run: |
@@ -79,22 +83,11 @@ jobs:
       working-directory: ./argocd
       # if: github.event.pull_request.merged
       run: |
-        cd ../kubernetes_cluster
-        terraform init
-        terraform output kube_config > ./config
-        tail -n +3 ./config > ./config_ && mv ./config_ ./config
-        head -n -12 ./config > ./config.txt
-        cd ../argocd
-        echo test.txt
-        cat ../kubernetes_cluster/test.txt
-        echo config.txt
-        cat ../kubernetes_cluster/config.txt
-        diff ../kubernetes_cluster/test.txt ../kubernetes_cluster/config.txt
-        kubectl --kubeconfig=../kubernetes_cluster/test.txt version
-        kubectl --kubeconfig=../kubernetes_cluster/test.txt create namespace argocd
-        kubectl --kubeconfig=../kubernetes_cluster/test.txt apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-        kubectl --kubeconfig=../kubernetes_cluster/test.txt patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
-        kubectl --kubeconfig=../kubernetes_cluster/test.txt get secret -n argocd argocd-initial-admin-secret -o yaml
+        kubectl version
+        kubectl create namespace argocd
+        kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+        kubectl patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
+        kubectl get secret -n argocd argocd-initial-admin-secret -o yaml
 
     # - name: Deploy ArgoCD
     #   working-directory: ./argocd
