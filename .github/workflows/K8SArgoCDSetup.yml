@@ -7,9 +7,6 @@ env:
   ARM_SUBSCRIPTION_ID: '${{ secrets.SUBSCRIPTION_ID }}'
 
 on:
-  push:
-    branches:
-    - 'main'
   pull_request:
     types:
     - 'opened'
