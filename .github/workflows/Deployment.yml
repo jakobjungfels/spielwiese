@@ -20,9 +20,9 @@ permissions:
   contents: read
 
 jobs:
-  terraform:
+  deployment:
     name: 'Deployment'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     environment: production
 
     defaults:
