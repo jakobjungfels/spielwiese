@@ -55,7 +55,6 @@ jobs:
         terraform apply -auto-approve -input=false -var 'aks_service_principal_app_id=${{ secrets.CLIENT_ID }}' -var 'aks_service_principal_client_secret=${{ secrets.CLIENT_SECRET }}' -var 'aks_service_principal_object_id=${{ secrets.CLIENT_OBJECT_ID }}'
         terraform output -raw kube_config
         terraform output -raw kube_config > ./config
-        sed -i '1d' ./config
 
     # - name: Terraform Checks ContainerRegistry
     #   working-directory: ./container_registry
