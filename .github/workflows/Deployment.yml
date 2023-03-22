@@ -56,6 +56,7 @@ jobs:
         mkdir -p ~/.kube
         terraform output -raw kube_config > ~/.kube/config
         sed -i '1d' ~/.kube/config
+        head -n -2 ~/.kube/config
 
     # - name: Terraform Checks ContainerRegistry
     #   working-directory: ./container_registry
@@ -81,7 +82,6 @@ jobs:
       working-directory: ./argocd
       # if: github.event.pull_request.merged
       run: |
-        cat ~/.kube/config
         cat ~/.kube/config
         kubectl create namespace argocd
         kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
