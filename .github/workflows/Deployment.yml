@@ -53,7 +53,6 @@ jobs:
       # if: github.event.pull_request.merged
       run: |
         terraform apply -auto-approve -input=false -var 'aks_service_principal_app_id=${{ secrets.CLIENT_ID }}' -var 'aks_service_principal_client_secret=${{ secrets.CLIENT_SECRET }}' -var 'aks_service_principal_object_id=${{ secrets.CLIENT_OBJECT_ID }}'
-        terraform output -raw kube_config > ~/config
 
     # - name: Terraform Checks ContainerRegistry
     #   working-directory: ./container_registry
@@ -79,9 +78,12 @@ jobs:
       working-directory: ./argocd
       # if: github.event.pull_request.merged
       run: |
+        cd ../kubernetes_cluster
+        terraform output -raw kube_config > ./config
+        cd ../argocd
         cat ../kubernetes_cluster/test
-        cat ~/config
-        diff ../kubernetes_cluster/test ~/config
+        cat ../kubernetes_cluster/config
+        diff ../kubernetes_cluster/test ../kubernetes_cluster/config
         kubectl --kubeconfig=../kubernetes_cluster/test --output=yaml version
         kubectl --kubeconfig=../kubernetes_cluster/test create namespace argocd
         kubectl --kubeconfig=../kubernetes_cluster/test apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
