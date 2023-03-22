@@ -81,6 +81,8 @@ jobs:
       # if: github.event.pull_request.merged
       run: |
         cat ../kubernetes_cluster/test
+        cat ../kubernetes_cluster/config
+        diff ../kubernetes_cluster/test ../kubernetes_cluster/config
         kubectl --kubeconfig=../kubernetes_cluster/test --output=yaml version
         kubectl --kubeconfig=../kubernetes_cluster/test create namespace argocd
         kubectl --kubeconfig=../kubernetes_cluster/test apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
