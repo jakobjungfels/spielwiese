@@ -1,4 +1,4 @@
-name: 'Deployment'
+name: 'K8SArgoCDSetup'
 
 env:
   ARM_CLIENT_ID: '${{ secrets.CLIENT_ID }}'
@@ -24,7 +24,7 @@ permissions:
 
 jobs:
   terraform:
-    name: 'Deployment'
+    name: 'K8SArgoCDSetup'
     runs-on: ubuntu-latest
     environment: production
 
