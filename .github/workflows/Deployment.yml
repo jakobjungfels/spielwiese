@@ -82,7 +82,7 @@ jobs:
         cd ../kubernetes_cluster
         terraform init
         terraform output kube_config > ./config
-        sed -i '1d' ./config
+        tail -n +2 ./config > ./config_ && mv ./config_ ./config
         head -n -2 ./config > ./config.txt
         cd ../argocd
         echo test.txt
