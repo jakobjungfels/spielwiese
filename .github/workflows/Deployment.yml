@@ -55,8 +55,6 @@ jobs:
         terraform apply -auto-approve -input=false -var 'aks_service_principal_app_id=${{ secrets.CLIENT_ID }}' -var 'aks_service_principal_client_secret=${{ secrets.CLIENT_SECRET }}' -var 'aks_service_principal_object_id=${{ secrets.CLIENT_OBJECT_ID }}'
         mkdir -p ~/.kube
         terraform output -raw kube_config > ~/.kube/config
-        echo cat_now
-        cat ~/.kube/config
 
     # - name: Terraform Checks ContainerRegistry
     #   working-directory: ./container_registry
@@ -80,16 +78,16 @@ jobs:
       working-directory: ./argocd
       if: github.event.pull_request.merged
       run: |
-        kubectl --kubeconfig=../kubernetes_cluster/azurek8s create namespace argocd
-        kubectl --kubeconfig=../kubernetes_cluster/azurek8s apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-        kubectl --kubeconfig=../kubernetes_cluster/azurek8s patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
-        kubectl --kubeconfig=../kubernetes_cluster/azurek8s get secret -n argocd argocd-initial-admin-secret -o yaml
+        kubectl create namespace argocd
+        kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+        kubectl patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
+        kubectl get secret -n argocd argocd-initial-admin-secret -o yaml
 
     # - name: Deploy ArgoCD
     #   working-directory: ./argocd
     #   if: github.event.pull_request.merged
     #   run: |
-    #     kubectl --kubeconfig=../kubernetes_cluster/azurek8s create namespace argocd
-    #     kubectl --kubeconfig=../kubernetes_cluster/azurek8s apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-    #     kubectl --kubeconfig=../kubernetes_cluster/azurek8s patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
-    #     kubectl --kubeconfig=../kubernetes_cluster/azurek8s get secret -n argocd argocd-initial-admin-secret -o yaml
+    #     kubectl create namespace argocd
+    #     kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+    #     kubectl patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
+    #     kubectl get secret -n argocd argocd-initial-admin-secret -o yaml
