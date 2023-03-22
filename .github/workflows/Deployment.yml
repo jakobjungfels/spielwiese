@@ -1,4 +1,4 @@
-name: 'K8SArgoCDSetup'
+name: 'Deployment'
 
 env:
   ARM_CLIENT_ID: '${{ secrets.CLIENT_ID }}'
@@ -13,7 +13,7 @@ on:
     - 'synchronize'
     - 'closed'
     - 'reopened'
-    branches: 
+    branches:
     - 'main'
 
 permissions:
@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   terraform:
-    name: 'K8SArgoCDSetup'
+    name: 'Deployment'
     runs-on: ubuntu-latest
     environment: production
 
@@ -41,20 +41,35 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
 
-    - name: Terraform Checks
+    - name: Terraform Checks K8S
       working-directory: ./kubernetes_cluster
       run: |
         terraform init
         terraform fmt -check
         terraform plan -input=false -var 'aks_service_principal_app_id=${{ secrets.CLIENT_ID }}' -var 'aks_service_principal_client_secret=${{ secrets.CLIENT_SECRET }}' -var 'aks_service_principal_object_id=${{ secrets.CLIENT_OBJECT_ID }}'
 
-    - name: Terraform Apply
+    - name: Terraform Apply K8S
       working-directory: ./kubernetes_cluster
       if: github.event.pull_request.merged
       run: |
         terraform apply -auto-approve -input=false -var 'aks_service_principal_app_id=${{ secrets.CLIENT_ID }}' -var 'aks_service_principal_client_secret=${{ secrets.CLIENT_SECRET }}' -var 'aks_service_principal_object_id=${{ secrets.CLIENT_OBJECT_ID }}'
         terraform output -raw kube_config > ./azurek8s
+        echo cat_now
         cat ./azurek8s
+
+    # - name: Terraform Checks ContainerRegistry
+    #   working-directory: ./container_registry
+    #   run: |
+    #     terraform init
+    #     terraform fmt -check
+    #     terraform plan -input=false -var 'aks_service_principal_app_id=${{ secrets.CLIENT_ID }}'
+
+    # - name: Terraform Apply ContainerRegistry
+    #   working-directory: ./container_registry
+    #   if: github.event.pull_request.merged
+    #   run: |
+    #     terraform apply -auto-approve -input=false -var 'aks_service_principal_app_id=${{ secrets.CLIENT_ID }}'
+    #     terraform output -raw admin_password
 
     - name: Setup Kubectl
       uses: azure/setup-kubectl@v3
@@ -68,3 +83,12 @@ jobs:
         kubectl --kubeconfig=../kubernetes_cluster/azurek8s apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
         kubectl --kubeconfig=../kubernetes_cluster/azurek8s patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
         kubectl --kubeconfig=../kubernetes_cluster/azurek8s get secret -n argocd argocd-initial-admin-secret -o yaml
+
+    # - name: Deploy ArgoCD
+    #   working-directory: ./argocd
+    #   if: github.event.pull_request.merged
+    #   run: |
+    #     kubectl --kubeconfig=../kubernetes_cluster/azurek8s create namespace argocd
+    #     kubectl --kubeconfig=../kubernetes_cluster/azurek8s apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+    #     kubectl --kubeconfig=../kubernetes_cluster/azurek8s patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
+    #     kubectl --kubeconfig=../kubernetes_cluster/azurek8s get secret -n argocd argocd-initial-admin-secret -o yaml
