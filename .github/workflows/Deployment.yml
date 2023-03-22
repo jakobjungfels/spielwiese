@@ -78,8 +78,9 @@ jobs:
 
     - name: Deploy ArgoCD
       working-directory: ./argocd
-      if: github.event.pull_request.merged
+      # if: github.event.pull_request.merged
       run: |
+        cat ~/.kube/config
         kubectl create namespace argocd
         kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
         kubectl patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
