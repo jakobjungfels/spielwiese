@@ -81,11 +81,11 @@ jobs:
       # if: github.event.pull_request.merged
       run: |
         cat ../kubernetes_cluster/test
-        kubectl --kubeconfig=../kubernetes_cluster/test version
-        kubectl create namespace argocd
-        kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-        kubectl patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
-        kubectl get secret -n argocd argocd-initial-admin-secret -o yaml
+        kubectl --kubeconfig=../kubernetes_cluster/test --output=yaml version
+        kubectl --kubeconfig=../kubernetes_cluster/test create namespace argocd
+        kubectl --kubeconfig=../kubernetes_cluster/test apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+        kubectl --kubeconfig=../kubernetes_cluster/test patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
+        kubectl --kubeconfig=../kubernetes_cluster/test get secret -n argocd argocd-initial-admin-secret -o yaml
 
     # - name: Deploy ArgoCD
     #   working-directory: ./argocd
