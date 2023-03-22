@@ -82,8 +82,8 @@ jobs:
         cd ../kubernetes_cluster
         terraform init
         terraform output kube_config > ./config
-        tail -n +2 ./config > ./config_ && mv ./config_ ./config
-        head -n -2 ./config > ./config.txt
+        tail -n +3 ./config > ./config_ && mv ./config_ ./config
+        head -n -12 ./config > ./config.txt
         cd ../argocd
         echo test.txt
         cat ../kubernetes_cluster/test.txt
