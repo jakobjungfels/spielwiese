@@ -57,6 +57,7 @@ jobs:
         tail -n +3 ./config > ./config_ && mv ./config_ ./config
         mkdir -p ~/.kube
         head -n -12 ./config > ~/.kube/config
+        cat ~/.kube/config
         
     # - name: Terraform Checks ContainerRegistry
     #   working-directory: ./container_registry
@@ -80,12 +81,12 @@ jobs:
 
     - name: Deploy ArgoCD
       working-directory: ./argocd
-      if: github.event.pull_request.merged
+      # if: github.event.pull_request.merged
       run: |
-        kubectl create namespace argocd
+        kubectl apply -f argocd_namespace.yml
         kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
         kubectl patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
-        kubectl rollout status deployment argo-cd -n argocd --timeout=180s
+        kubectl wait pod --field-selector metadata.namespace=argocd --for=condition=ready -n argocd --timeout=180s
         kubectl get secret -n argocd argocd-initial-admin-secret -o yaml
 
     # - name: Deploy ArgoCD
