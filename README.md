@@ -4,6 +4,8 @@ The following steps need to be done manually. The rest of the deployment is hand
 
 ## GitHub setup
 
+### Service principle for Terraform
+
 Create service principle
 
 ```shell
@@ -22,6 +24,18 @@ az login --service-principal -u <app_id> -p <principle_password> --tenant <tenan
 Create GitHub secrets
 
 ![image](docs/secrets.png)
+
+### Deployment key for ArgoCD
+
+Generate key
+
+```shell
+ssh-keygen -t ed25519 -C "spielwiese"
+```
+
+Add public part of the the generated key as deployment key in Github
+
+![image](docs/deployment_key.png)
 
 ## Azure setup
 

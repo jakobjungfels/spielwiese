@@ -7,9 +7,9 @@ spec:
   project: default
 
   source:
-    repoURL: https://github.com/jakobjungfels/spielwiese.git
+    repoURL: git@github.com:jakobjungfels/spielwiese.git
     targetRevision: HEAD
-    path: dev
+    path: applications/test
   destination: 
     server: https://kubernetes.default.svc
     namespace: myapp
