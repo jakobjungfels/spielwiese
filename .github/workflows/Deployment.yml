@@ -9,10 +9,7 @@ env:
 on:
   pull_request:
     types:
-    - 'opened'
-    - 'synchronize'
     - 'closed'
-    - 'reopened'
     branches:
     - 'main'
 
@@ -50,13 +47,13 @@ jobs:
 
     - name: Terraform Apply K8S
       working-directory: ./kubernetes_cluster
-      if: github.event.pull_request.merged
       run: |
         terraform apply -auto-approve -input=false -var 'aks_service_principal_app_id=${{ secrets.CLIENT_ID }}' -var 'aks_service_principal_client_secret=${{ secrets.CLIENT_SECRET }}' -var 'aks_service_principal_object_id=${{ secrets.CLIENT_OBJECT_ID }}'
         terraform output kube_config > ./config
         tail -n +3 ./config > ./config_ && mv ./config_ ./config
         mkdir -p ~/.kube
         head -n -12 ./config > ~/.kube/config
+        cat ~/.kube/config
         
     # - name: Terraform Checks ContainerRegistry
     #   working-directory: ./container_registry
@@ -67,7 +64,6 @@ jobs:
 
     # - name: Terraform Apply ContainerRegistry
     #   working-directory: ./container_registry
-    #   if: github.event.pull_request.merged
     #   run: |
     #     terraform apply -auto-approve -input=false -var 'aks_service_principal_app_id=${{ secrets.CLIENT_ID }}'
     #     terraform output -raw admin_password
@@ -78,21 +74,26 @@ jobs:
         version: 'v1.24.9'
       id: install
 
+    - name: Install ArgoCD CLI
+      working-directory: ./argocd
+      run: |
+        curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+        install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+        rm argocd-linux-amd64
+
     - name: Deploy ArgoCD
       working-directory: ./argocd
-      if: github.event.pull_request.merged
       run: |
-        kubectl create namespace argocd
+        kubectl apply -f argocd_namespace.yml
         kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
         kubectl patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
-        kubectl rollout status deployment argo-cd -n argocd --timeout=180s
-        kubectl get secret -n argocd argocd-initial-admin-secret -o yaml
+        kubectl wait pod --field-selector metadata.namespace=argocd --for=condition=ready -n argocd --timeout=180s
+        kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+        kubectl config set-context --current --namespace=argocd
+        argocd login $(kubectl get service argocd-server -n argocd --output=jsonpath='{.status.loadBalancer.ingress[0].hostname}') --core
+        argocd repo add git@github.com:jakobjungfels/spielwiese.git --ssh-private-key-path ../kubernetes_cluster/id_rsa
 
-    # - name: Deploy ArgoCD
-    #   working-directory: ./argocd
-    #   if: github.event.pull_request.merged
-    #   run: |
-    #     kubectl create namespace argocd
-    #     kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-    #     kubectl patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
-    #     kubectl get secret -n argocd argocd-initial-admin-secret -o yaml
+    - name: Deploy ArgoCD Applications
+      working-directory: ./applications
+      run: |
+        kubectl apply -f .
