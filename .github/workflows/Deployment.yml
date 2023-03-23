@@ -20,7 +20,7 @@ permissions:
   contents: read
 
 jobs:
-  terraform:
+  deployment:
     name: 'Deployment'
     runs-on: ubuntu-latest
     environment: production
@@ -53,9 +53,11 @@ jobs:
       if: github.event.pull_request.merged
       run: |
         terraform apply -auto-approve -input=false -var 'aks_service_principal_app_id=${{ secrets.CLIENT_ID }}' -var 'aks_service_principal_client_secret=${{ secrets.CLIENT_SECRET }}' -var 'aks_service_principal_object_id=${{ secrets.CLIENT_OBJECT_ID }}'
+        terraform output kube_config > ./config
+        tail -n +3 ./config > ./config_ && mv ./config_ ./config
         mkdir -p ~/.kube
-        terraform output -raw kube_config > ~/.kube/config
-
+        head -n -12 ./config > ~/.kube/config
+        
     # - name: Terraform Checks ContainerRegistry
     #   working-directory: ./container_registry
     #   run: |
@@ -83,6 +85,7 @@ jobs:
         kubectl create namespace argocd
         kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
         kubectl patch svc argocd-server -n argocd --patch-file ./patch_file.yaml
+        kubectl rollout status deployment argo-cd -n argocd --timeout=180s
         kubectl get secret -n argocd argocd-initial-admin-secret -o yaml
 
     # - name: Deploy ArgoCD
