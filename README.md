@@ -4,6 +4,14 @@ The following steps need to be done manually. The rest of the deployment is hand
 
 ## GitHub setup
 
+### Generate key(s)
+
+There is a key in kubernetes_cluster that can be used for both the Kubernetes cluster and the ArgoCD login. However, it is advised to generate your own keys
+
+```shell
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+```
+
 ### Service principle for Terraform
 
 Create service principle
@@ -27,15 +35,11 @@ Create GitHub secrets
 
 ### Deployment key for ArgoCD
 
-Generate key
-
-```shell
-ssh-keygen -t ed25519 -C "spielwiese"
-```
-
-Add public part of the the generated key as deployment key in Github
+Add public part of a generated key as deployment key in Github
 
 ![image](docs/deployment_key.png)
+
+The private part of the key will be used to log into ArgoCD
 
 ## Azure setup
 
@@ -47,3 +51,7 @@ terraform init
 terraform plan
 terraform apply -auto-approve
 ```
+
+## ArgoCD
+
+ArgoCD will deploy all application yml files in the applications folder
